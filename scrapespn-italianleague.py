@@ -14,6 +14,7 @@ driver = webdriver.Chrome(chromeDriverPath,options=options)
 driver.get("https://www.espn.co.uk/football/table/_/league/ita.1")
 italian_league_teams=[]             #get the names of all english league teams
 italian_league_teams_link=[]        #get the link of all english league teams
+italian_league_team_image=[]
 tag_name="abbr"
 li = driver.find_elements(by=By.TAG_NAME,value=tag_name)
 for row in li:
@@ -22,6 +23,9 @@ for row in li:
 xpath_tbody="/html/body/div[1]/div/div/div/main/div[3]/div/div/section/div/section/section/div[1]/div/div[2]/table/tbody"
 tbody = driver.find_element(by=By.XPATH,value=xpath_tbody)
 atag = tbody.find_elements(by=By.CLASS_NAME,value="AnchorLink")
+img_tag = tbody.find_elements(by=By.TAG_NAME,value="img") #
+for row in img_tag:                                       #
+    italian_league_team_image.append(row.get_attribute("src")) #
 for row in atag:
     if row.get_attribute("href") not in italian_league_teams_link:
         italian_league_teams_link.append(row.get_attribute("href"))
@@ -29,6 +33,7 @@ for row in atag:
 for i in range(len(italian_league_teams_link)):
     team = italian_league_teams[i]
     link = italian_league_teams_link[i]
+    team_img = italian_league_team_image[i]
     driver.get(link)
     xpath_squad = "/html/body/div[1]/div/div/div/main/div[2]/div[2]/nav/ul/li[5]/a"
     squad_body = driver.find_element(by=By.XPATH,value=xpath_squad)
@@ -40,7 +45,8 @@ for i in range(len(italian_league_teams_link)):
     for row in goalkeeper_body:
         italian_league.append({
             "Team":team,
-            "Name":row.text
+            "Name":row.text,
+            "team_logo":team_img
         })
         goalkeepers.append(row.text)
 #print(goalkeepers)
@@ -51,8 +57,10 @@ for i in range(len(italian_league_teams_link)):
     for row in atag:
         italian_league.append({
             "Team":team,
-            "Name":row.text
+            "Name":row.text,
+            "team_logo":team_img
         })
         outfield_players.append(row.text)
 #print(outfield_players)
-print(len(italian_league))
+# print(len(italian_league))
+print(italian_league_team_image)
