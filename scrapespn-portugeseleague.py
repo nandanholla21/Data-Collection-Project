@@ -3,12 +3,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
+import sqlite3
 portugese_league=[]
 
 
 options = Options()
-options.add_argument('--headless')
+options.add_argument("--headless=new")
 chromeDriverPath = 'D:\programming\C programs\chromedriver'
 driver = webdriver.Chrome(chromeDriverPath,options=options)
 driver.get("https://www.espn.co.uk/football/table/_/league/por.1")
@@ -63,4 +63,20 @@ for i in range(len(portugese_league_teams_link)):
         outfield_players.append(row.text)
 #print(outfield_players)
 # print(len(portugese_league))
-print(portugese_league_team_image)
+# print(portugese_league_team_image)
+conn = sqlite3.connect("E:\Project X\Data.db")
+cursor = conn.cursor()
+cursor.execute('''
+create table if not exists portugese_league(
+Team TEXT,
+Name TEXT,
+Team_logo TEXT
+)''')
+conn.commit()
+for item in portugese_league:
+    team = str(item['Team'])
+    name = str(item['Name'])
+    team_logo = str(item['team_logo'])
+    cursor.execute('''insert into portugese_league values(?,?,?)''',(team,name,team_logo))
+    conn.commit()
+conn.close()

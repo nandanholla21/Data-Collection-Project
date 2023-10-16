@@ -3,12 +3,12 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-
+import sqlite3
 premier_league=[]
 
 
 options = Options()
-options.add_argument('--headless')
+options.add_argument("--headless=new")
 chromeDriverPath = 'D:\programming\C programs\chromedriver'
 driver = webdriver.Chrome(chromeDriverPath,options=options)
 driver.get("https:/www.espn.co.uk/football/table")
@@ -19,7 +19,8 @@ tag_name="abbr"
 li = driver.find_elements(by=By.TAG_NAME,value=tag_name)
 for row in li:
     premier_league_teams.append(row.get_attribute("title"))
-#print(premier_league_teams)
+# print(premier_league_teams)
+
 xpath_tbody="/html/body/div[1]/div/div/div/main/div[3]/div/div/section/div/section/section/div[1]/div/div[2]/table/tbody"
 tbody = driver.find_element(by=By.XPATH,value=xpath_tbody)
 atag = tbody.find_elements(by=By.CLASS_NAME,value="AnchorLink")
@@ -66,3 +67,20 @@ for i in range(len(premier_league_teams_link)):
 #print(len(premier_league))
 #print(premier_league_team_image)
 print(premier_league)
+# ---------------------------------------------
+conn = sqlite3.connect("E:\Project X\Data.db")
+cursor = conn.cursor()
+cursor.execute('''
+create table if not exists premier_league(
+Team TEXT,
+Name TEXT,
+Team_logo TEXT
+)''')
+conn.commit()
+for item in premier_league:
+    team = str(item['Team'])
+    name = str(item['Name'])
+    team_logo = str(item['team_logo'])
+    cursor.execute('''insert into premier_league values(?,?,?)''',(team,name,team_logo))
+    conn.commit()
+conn.close()
